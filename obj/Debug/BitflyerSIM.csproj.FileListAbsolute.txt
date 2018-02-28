@@ -1,0 +1,10 @@
+C:\Users\s4406\Dropbox\05. Program\csharp\BitflyerSIM\BitflyerSIM\bin\Debug\BitflyerSIM.exe.config
+C:\Users\s4406\Dropbox\05. Program\csharp\BitflyerSIM\BitflyerSIM\bin\Debug\BitflyerSIM.exe
+C:\Users\s4406\Dropbox\05. Program\csharp\BitflyerSIM\BitflyerSIM\bin\Debug\BitflyerSIM.pdb
+C:\Users\s4406\Dropbox\05. Program\csharp\BitflyerSIM\BitflyerSIM\obj\Debug\BitflyerSIM.csprojResolveAssemblyReference.cache
+C:\Users\s4406\Dropbox\05. Program\csharp\BitflyerSIM\BitflyerSIM\obj\Debug\BitflyerSIM.Form1.resources
+C:\Users\s4406\Dropbox\05. Program\csharp\BitflyerSIM\BitflyerSIM\obj\Debug\BitflyerSIM.Properties.Resources.resources
+C:\Users\s4406\Dropbox\05. Program\csharp\BitflyerSIM\BitflyerSIM\obj\Debug\BitflyerSIM.csproj.GenerateResource.Cache
+C:\Users\s4406\Dropbox\05. Program\csharp\BitflyerSIM\BitflyerSIM\obj\Debug\BitflyerSIM.csproj.CoreCompileInputs.cache
+C:\Users\s4406\Dropbox\05. Program\csharp\BitflyerSIM\BitflyerSIM\obj\Debug\BitflyerSIM.exe
+C:\Users\s4406\Dropbox\05. Program\csharp\BitflyerSIM\BitflyerSIM\obj\Debug\BitflyerSIM.pdb
