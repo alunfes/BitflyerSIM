@@ -62,6 +62,7 @@
     <Compile Include="SIM.cs" />
     <Compile Include="SIMMasterThread.cs" />
     <Compile Include="StrategyKairi.cs" />
+    <Compile Include="StrategyNanpin.cs" />
     <Compile Include="SystemData.cs" />
     <Compile Include="TickConverter.cs" />
     <Compile Include="TickData.cs" />

@@ -61,6 +61,7 @@ namespace BitflyerSIM
             cum_pl = 0;
             required_shokokin = 0;
             ijiritsu = 0;
+            position = "None";
 
             asset_log = new Dictionary<int, double>();
             money_log = new Dictionary<int, double>();
@@ -76,11 +77,14 @@ namespace BitflyerSIM
         }
 
         #region Entry
-        public bool entryLong(double num, double price, int i)
+        public bool entryLong(double num, int i)
         {
-            if (money > num * price && position != "Short")
+            double price = PriceData.open[i];
+            double fee = PriceData.open[i] * (SystemData.slip_page + SystemData.trading_fee);
+            double shokokin = calcEstimatedRequiredShokokin(PriceData.open[i], num);
+            if (money > (shokokin+fee) && position != "Short")
             {
-                money -= num * price;
+                money -= fee;
                 ave_price = ((ave_price * num_btc) + (num * price)) / (num_btc + num);
                 num_btc += num;
                 position = "Long";
@@ -97,11 +101,15 @@ namespace BitflyerSIM
             }
         }
 
-        public bool entryShort(double num, double price, int i)
+
+        public bool entryShort(double num, int i)
         {
-            if (money > num * price && position != "Long")
+            double price = PriceData.open[i];
+            double fee = PriceData.open[i] * (SystemData.slip_page + SystemData.trading_fee);
+            double shokokin = calcEstimatedRequiredShokokin(PriceData.open[i], num);
+            if (money > (shokokin + fee) && position != "Long")
             {
-                money -= num * price;
+                money -= fee;
                 ave_price = ((ave_price * num_btc) + (num * price)) / (num_btc + num);
                 num_btc += num;
                 position = "Short";
@@ -119,13 +127,14 @@ namespace BitflyerSIM
         }
         #endregion
 
-        #region ClosePosition
-        public string closeLongPosition(double num, double close_price, int i)
+        #region ExitPosition
+        public string exitLongPosition(double num, int i)
         {
             if (num_btc >= num)
             {
-                cum_pl += (ave_price - close_price) * num;
-                money += (ave_price - close_price) * num;
+                double fee = PriceData.open[i] * (SystemData.slip_page + SystemData.trading_fee);
+                cum_pl += (PriceData.open[i] - ave_price - fee) * num;
+                money += (PriceData.open[i] - ave_price - fee) * num;
                 pl = 0;
                 num_btc -= num;
                 num_trade++;
@@ -145,12 +154,67 @@ namespace BitflyerSIM
             }
         }
 
-        public string closeShortPosition(double num, double close_price, int i)
+
+        //use only when force exit or loss cut
+        private string forceExitLongPosition(double num, double price, int i)
         {
             if (num_btc >= num)
             {
-                cum_pl += (close_price - ave_price) * num;
-                money += (close_price - ave_price) * num;
+                double fee = price * (SystemData.slip_page + SystemData.trading_fee);
+                cum_pl += (price- ave_price - fee) * num;
+                money += (price - ave_price - fee) * num;
+                pl = 0;
+                num_btc -= num;
+                num_trade++;
+                asset = calcAsset(i);
+                if (num_btc > 0)
+                    position = "Long";
+                else
+                    position = "None";
+
+                ac_message_log.Add(i, "OK:Long Exit");
+                return "OK";
+            }
+            else //over num error
+            {
+                ac_message_log.Add(i, "Failed:Long Exit");
+                return "Failed Close Long: Can't sell num more than hold";
+            }
+        }
+
+        public string exitShortPosition(double num, int i)
+        {
+            if (num_btc >= num)
+            {
+                double fee = PriceData.open[i] * (SystemData.slip_page + SystemData.trading_fee);
+                cum_pl += (PriceData.open[i] - ave_price - fee) * num;
+                money += (PriceData.open[i]- ave_price - fee) * num;
+                pl = 0;
+                num_btc -= num;
+                num_trade++;
+                asset = calcAsset(i);
+                if (num_btc > 0)
+                    position = "Short";
+                else
+                    position = "None";
+
+                ac_message_log.Add(i, "OK:Short Exit");
+                return "OK";
+            }
+            else //over num error
+            {
+                ac_message_log.Add(i, "Failed:Short Exit");
+                return "Failed Close Short: Can't buy num more than hold";
+            }
+        }
+
+        private string forceExitShortPosition(double num, double price, int i)
+        {
+            if (num_btc >= num)
+            {
+                double fee = price *(SystemData.slip_page + SystemData.trading_fee);
+                cum_pl += (ave_price-price - fee) * num;
+                money += (ave_price-price - fee) * num;
                 pl = 0;
                 num_btc -= num;
                 num_trade++;
@@ -198,15 +262,22 @@ namespace BitflyerSIM
             logAC(i);
         }
 
+        public void finalDay(int i)
+        {
+
+        }
+
         public void forceExit(int i)
         {
             if (position == "Long")
             {
-                closeLongPosition(getNumBTC, PriceData.close[i], i);
+                ac_message_log.Add(i, "Force Exit Long");
+                forceExitLongPosition(getNumBTC, PriceData.close[i], i);
             }
             else if(position == "Short")
             {
-                closeShortPosition(getNumBTC, PriceData.close[i], i);
+                ac_message_log.Add(i, "Force Exit Short");
+                forceExitShortPosition(getNumBTC, PriceData.close[i], i);
             }
         }
 
@@ -215,16 +286,25 @@ namespace BitflyerSIM
             return money + pl + num_btc * PriceData.close[i];
         }
 
-
-
+        
         private double calcRequiredShokokin(int i)
         {
             return (ave_price * num_btc) / SystemData.leverage;
         }
 
+        public double calcEstimatedRequiredShokokin(double price, double lot)
+        {
+            return (((ave_price * num_btc) + (price * lot)) / (num_btc + lot)) / SystemData.leverage;
+        }
+
         private double calcIjiritsu(int i)
         {
-            return (ave_price * num_btc) / (required_shokokin + pl);
+            return (money + pl) / required_shokokin;
+        }
+
+        public double calcEstimatedMaxLot(int i, double price)
+        {
+            return (SystemData.leverage * (money + pl)) / (0.8 * ave_price);
         }
 
         private void calcPL(int i)
@@ -264,17 +344,17 @@ namespace BitflyerSIM
             if (position == "Long")
             {
                 ac_message_log.Add(i, "Loss cut long");
-                closeLongPosition(getNumBTC, PriceData.close[i], i);
+                forceExitLongPosition(getNumBTC, PriceData.close[i], i);
             }
             else if (position == "Short")
             {
                 ac_message_log.Add(i, "Loss cut short");
-                closeShortPosition(getNumBTC, PriceData.close[i], i);
+                forceExitShortPosition(getNumBTC, PriceData.close[i], i);
             }
             else
                 System.Windows.Forms.MessageBox.Show("Unknown position code in doLossCut");
 
-            position = "Loss Cut";
+            position = "None";
         }
     }
 }

@@ -9,35 +9,26 @@ namespace BitflyerSIM
     class Trade
     {
         #region Entry
-        public static string longSashineEntry(Account ac, int i, double entry_price, double lot)
+        public static string entryLong(Account ac, int i, double lot)
         {
             //check required shokokin
-            if (checkIjiritsu(ac, i, entry_price, lot))
+            if (checkExecution(ac, i, lot))
             {
-                if (checkExecution(i, entry_price, lot))
-                {
-                    ac.entryLong(lot, entry_price, i);
-                    return "OK";
-                }
-                else
-                    return "Failed Long Sashine Entry: Non Executable price or volume";
+                ac.entryLong(lot, i);
+                return "OK";
             }
             else
-                return "Failed Long Sashine Entry: Required Shokokin is not sufficient";
+                return "Failed Long Entry: Required Shokokin is not sufficient";
         }
 
-        public static string shortSashineEntry(Account ac, int i, double entry_price, double lot)
+        public static string entryShort(Account ac, int i, double lot)
         {
             //check required shokokin
-            if (checkIjiritsu(ac, i, entry_price, lot))
+            if (checkExecution(ac, i, lot))
             {
-                if (checkExecution(i, entry_price, lot))
-                {
-                    ac.entryShort(lot, entry_price, i);
-                    return "OK";
-                }
-                else
-                    return "Failed Short Sashine Entry: Non Executable price or volume";
+                ac.entryShort(lot, i);
+                return "OK";
+
             }
             else
                 return "Failed Short Sashine Entry: Required Shokokin is not sufficient";
@@ -46,42 +37,30 @@ namespace BitflyerSIM
 
 
         #region Exit
-        public static string exitLong(Account ac, int i, double exit_price, double lot)
+        public static string exitLong(Account ac, int i, double lot)
         {
             if (ac.getNumBTC >= lot)
             {
-                if (checkExecution(i, exit_price, lot))
-                {
-                    string res = ac.closeLongPosition(lot, exit_price, i);
-                    if (res != "OK")
-                        return res;
-                    else
-                        return res;
-
-                }
+                string res = ac.exitLongPosition(lot, i);
+                if (res != "OK")
+                    return res;
                 else
-                    return "Failed Exit Long: Can't sell more than hold";
+                    return res;
             }
             else
                 return "Failed Long Exit: Can't sell more than hold";
 
         }
 
-        public static string exitShort(Account ac, int i, double exit_price, double lot)
+        public static string exitShort(Account ac, int i, double lot)
         {
             if (ac.getNumBTC >= lot)
             {
-                if (checkExecution(i, exit_price, lot))
-                {
-                    string res = ac.closeShortPosition(lot, exit_price, i);
-                    if (res != "OK")
-                        return res;
-                    else
-                        return res;
-
-                }
+                string res = ac.exitShortPosition(lot, i);
+                if (res != "OK")
+                    return res;
                 else
-                    return "Failed Exit Short: Can't buy more than hold";
+                    return res;
             }
             else
                 return "Failed Short Exit: Can't buy more than hold";
@@ -91,7 +70,7 @@ namespace BitflyerSIM
 
 
 
-        private static bool checkIjiritsu(Account ac, int i, double entry_price, double lot)
+        /*private static bool checkIjiritsu(Account ac, int i, double entry_price, double lot)
         {
             double estimated_required_shokokin = ((ac.getAvePrice * ac.getNumBTC) + (entry_price * lot)) / SystemData.leverage;
             double estimated_ijiritsu = ((ac.getAvePrice * ac.getNumBTC) + (entry_price * lot)) / (estimated_required_shokokin + ac.getPL);
@@ -99,13 +78,14 @@ namespace BitflyerSIM
                 return false;
             else
                 return true;
-        }
+        }*/
 
         //check possibility of execution
         //true=executable, false=not executable
-        private static bool checkExecution(int i, double entry_price, double lot)
+        private static bool checkExecution(Account ac, int i, double lot)
         {
-            if (PriceData.close[i] >= entry_price && PriceData.low[i] <= entry_price && PriceData.volume[i] >= entry_price * lot * 2)
+            double reqshokokin = ac.calcEstimatedRequiredShokokin(PriceData.open[i], lot);
+            if (ac.getMoney > reqshokokin)
                 return true;
             else
                 return false;

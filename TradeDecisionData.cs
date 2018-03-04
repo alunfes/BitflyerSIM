@@ -9,7 +9,7 @@ namespace BitflyerSIM
     class TradeDecisionData
     {
         
-        public string decision;
+        public string decision; //Hold, Entry Long, Entry Short, PT Long, PT Short, LC Long, LC Short, Nanpin Long, Nanpin Short
         public double price;
         public double lot;
 
