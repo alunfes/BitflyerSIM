@@ -27,7 +27,15 @@ namespace BitflyerSIM
                     tdd.initialize();
                     if (d == "Entry Long")
                     {
-                        ac.entryLong(lot, i);
+                        string message = Trade.entryLong(ac, i, tdd.lot);
+                        if(message == "OK")
+                        {
+
+                        }
+                        else
+                        {
+
+                        }
                         lot = 0;
                         d = "Hold";
                     }
