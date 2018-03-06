@@ -28,61 +28,63 @@ namespace BitflyerSIM
                     if (d == "Entry Long")
                     {
                         string message = Trade.entryLong(ac, i, tdd.lot);
-                        if(message == "OK")
-                        {
-
-                        }
-                        else
-                        {
-
-                        }
+                        sl.trade_log.Add(i, message);
                         lot = 0;
                         d = "Hold";
                     }
                     else if(d=="Entry Short")
                     {
-                        ac.entryShort(lot, i);
+                        string message = Trade.entryShort(ac, i, tdd.lot);
+                        sl.trade_log.Add(i, message);
                         lot = 0;
                         d = "Hold";
                     }
                     else if(d == "Exit Long")
                     {
-                        ac.exitLongPosition(lot, i);
+                        string message = Trade.exitLong(ac, i, tdd.lot);
+                        sl.trade_log.Add(i, message);
                         d = "Hold";
                     }
                     else if (d == "Exit Short")
                     {
-                        ac.exitShortPosition(lot, i);
+                        string message = Trade.exitShort(ac, i, tdd.lot);
+                        sl.trade_log.Add(i, message);
                         d = "Hold";
                     }
 
                     tdd = StrategyNanpin.makeDecision(ac, i, kairi_kijun, pt, lc, nanpin);
                     if(tdd.decision == "Entry Long" || tdd.decision == "Nanpin Long")
                     {
+                        sl.decision_log.Add(i, tdd.decision);
                         d = "Entry Long";
                         lot = tdd.lot;
                     }
                     else if (tdd.decision == "Entry Short" || tdd.decision == "Nanpin Short")
                     {
+                        sl.decision_log.Add(i, tdd.decision);
                         d = "Entry Short";
                         lot = tdd.lot;
                     }
                     else if (tdd.decision == "PT Long" || tdd.decision == "LC Long")
                     {
+                        sl.decision_log.Add(i, tdd.decision);
                         d = "Exit Long";
                         lot = 0;
                     }
                     else if (tdd.decision == "PT Short" || tdd.decision == "LC Short")
                     {
+                        sl.decision_log.Add(i, tdd.decision);
                         d = "Exit Short";
                         lot = 0;
                     }
                     else if(tdd.decision == "Hold")
                     {
+                        sl.decision_log.Add(i, tdd.decision);
                         d = "Hold";
                         lot = 0;
                     }
                     ac.moveToNext(i);
+                    sl.takeDailyLog(ac, i);
                 }
             }
             else

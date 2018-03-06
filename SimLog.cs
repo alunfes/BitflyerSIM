@@ -3,24 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace BitflyerSIM
 {
     class SimLog
     {
-        public List<int> i_log;
-        public Dictionary<int, string> decision_log;
-        public Dictionary<int, string> trade_log;
-        public Dictionary<int, double> money_log;
-        public Dictionary<int, double> trade_price_log;
-        public Dictionary<int, double> ave_price_log;
-        public Dictionary<int, double> num_btc_log;
-        public Dictionary<int, double> pl_log;
-        public Dictionary<int, double> cum_pl_log;
-        public Dictionary<int, string> position_log;
-        public Dictionary<int, int> num_trade_log;
-        public Dictionary<int, double> required_shokokin_log;
-        public Dictionary<int, double> ijiritsu_log;
+        public List<int> i_log { get; set; }
+        public Dictionary<int, string> decision_log { get; set; }
+        public Dictionary<int, string> trade_log { get; set; }
+        public Dictionary<int, double> money_log { get; set; }
+        public Dictionary<int, double> trade_price_log { get; set; }
+        public Dictionary<int, double> ave_price_log { get; set; }
+        public Dictionary<int, double> num_btc_log { get; set; }
+        public Dictionary<int, double> pl_log { get; set; }
+        public Dictionary<int, double> cum_pl_log { get; set; }
+        public Dictionary<int, string> position_log { get; set; }
+        public Dictionary<int, int> num_trade_log { get; set; }
+        public Dictionary<int, double> required_shokokin_log { get; set; }
+        public Dictionary<int, double> ijiritsu_log { get; set; }
+
+        public double asset_change;
 
         public SimLog()
         {
@@ -56,6 +59,15 @@ namespace BitflyerSIM
             num_trade_log.Add(i, ac.getNumTrade);
             required_shokokin_log.Add(i, ac.getRequiredShokokin);
             ijiritsu_log.Add(i, ac.getIjiritsu);
+        }
+
+        public void writeLog(string name)
+        {
+            using (StreamWriter sw = new StreamWriter(name, false, Encoding.Default))
+            {
+                sw.WriteLine("DateTime,Open,High,Low,Close,Money,PL,CUM PL,Ave Price,Num BTC,Position,Num Trade,Required Shokokin,Ijiritsu,Decision,Trade");
+
+            }
         }
 
     }

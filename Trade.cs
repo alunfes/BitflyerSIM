@@ -15,7 +15,7 @@ namespace BitflyerSIM
             if (checkExecution(ac, i, lot))
             {
                 ac.entryLong(lot, i);
-                return "OK";
+                return "Entry Long Successed";
             }
             else
                 return "Failed Long Entry: Required Shokokin is not sufficient";
@@ -27,11 +27,11 @@ namespace BitflyerSIM
             if (checkExecution(ac, i, lot))
             {
                 ac.entryShort(lot, i);
-                return "OK";
+                return "Entry Short Successed";
 
             }
             else
-                return "Failed Short Sashine Entry: Required Shokokin is not sufficient";
+                return "Failed Short Entry: Required Shokokin is not sufficient";
         }
         #endregion
 
@@ -42,7 +42,7 @@ namespace BitflyerSIM
             if (ac.getNumBTC >= lot)
             {
                 string res = ac.exitLongPosition(lot, i);
-                if (res != "OK")
+                if (res != "Exit Long Successed")
                     return res;
                 else
                     return res;
@@ -57,7 +57,7 @@ namespace BitflyerSIM
             if (ac.getNumBTC >= lot)
             {
                 string res = ac.exitShortPosition(lot, i);
-                if (res != "OK")
+                if (res != "Exit Short Successed")
                     return res;
                 else
                     return res;
